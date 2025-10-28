@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">MapApp</string>
+
+    <!-- Splash -->
+    <string name="splash_tagline">Conectando sua cidade</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Pular</string>
+    <string name="onboarding_next">Próximo</string>
+    <string name="onboarding_start">Começar</string>
+
+    <!-- Login -->
+    <string name="login_title">Bem-vindo de volta!</string>
+    <string name="login_email">Email</string>
+    <string name="login_password">Senha</string>
+    <string name="login_button">ENTRAR</string>
+    <string name="login_no_account">Não tem conta? Cadastre-se</string>
+    <string name="login_forgot">Esqueceu a senha?</string>
+
+    <!-- Register -->
+    <string name="register_title">Criar Conta</string>
+    <string name="register_name">Nome completo</string>
+    <string name="register_email">Email</string>
+    <string name="register_password">Senha (mín. 6 caracteres)</string>
+    <string name="register_confirm">Confirmar senha</string>
+    <string name="register_button">CADASTRAR</string>
+    <string name="register_has_account">Já tem conta? Faça login</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_map">Mapa</string>
+    <string name="nav_feed">Feed</string>
+    <string name="nav_report">Reportar</string>
+    <string name="nav_profile">Perfil</string>
+</resources>
