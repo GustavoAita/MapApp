@@ -44,6 +44,11 @@
             android:name=".ui.main.MainActivity"
             android:exported="false" />
 
+        <!-- Report Problem Activity -->
+        <activity
+            android:name=".ui.report.ReportProblemActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

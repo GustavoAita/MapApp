@@ -67,6 +67,10 @@ class OnboardingActivity : AppCompatActivity() {
     }
 
     private fun goToLogin() {
+        // Marcar que já viu o onboarding
+        val prefs = getSharedPreferences("MapAppPrefs", MODE_PRIVATE)
+        prefs.edit().putBoolean("isFirstTime", false).apply()
+
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }

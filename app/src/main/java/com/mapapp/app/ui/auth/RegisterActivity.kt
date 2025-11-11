@@ -23,16 +23,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         binding.btnRegister.setOnClickListener {
-            val name = binding.etName.text.toString().trim()
-            val email = binding.etEmail.text.toString().trim()
-            val password = binding.etPassword.text.toString().trim()
-            val confirm = binding.etConfirm.text.toString().trim()
-
-            if (validateRegister(name, email, password, confirm)) {
-                saveUser(name, email)
-                Toast.makeText(this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
-                finish()
-            }
+            performRegister()
         }
 
         binding.tvLogin.setOnClickListener {
@@ -40,28 +31,65 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun validateRegister(name: String, email: String, password: String, confirm: String): Boolean {
-        if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirm.isEmpty()) {
-            Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
-            return false
+    private fun performRegister() {
+        val name = binding.etName.text.toString().trim()
+        val email = binding.etEmail.text.toString().trim()
+        val password = binding.etPassword.text.toString().trim()
+        val confirm = binding.etConfirm.text.toString().trim()
+
+        // Limpar erros anteriores
+        binding.nameLayout.error = null
+        binding.emailLayout.error = null
+        binding.passwordLayout.error = null
+        binding.confirmLayout.error = null
+
+        when {
+            name.isEmpty() -> {
+                binding.nameLayout.error = "Digite seu nome"
+                binding.etName.requestFocus()
+                return
+            }
+            name.length < 3 -> {
+                binding.nameLayout.error = "Nome deve ter no mínimo 3 caracteres"
+                binding.etName.requestFocus()
+                return
+            }
+            email.isEmpty() -> {
+                binding.emailLayout.error = "Digite o email"
+                binding.etEmail.requestFocus()
+                return
+            }
+            !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                binding.emailLayout.error = "Email inválido"
+                binding.etEmail.requestFocus()
+                return
+            }
+            password.isEmpty() -> {
+                binding.passwordLayout.error = "Digite a senha"
+                binding.etPassword.requestFocus()
+                return
+            }
+            password.length < 6 -> {
+                binding.passwordLayout.error = "Senha deve ter no mínimo 6 caracteres"
+                binding.etPassword.requestFocus()
+                return
+            }
+            confirm.isEmpty() -> {
+                binding.confirmLayout.error = "Confirme a senha"
+                binding.etConfirm.requestFocus()
+                return
+            }
+            password != confirm -> {
+                binding.confirmLayout.error = "As senhas não coincidem"
+                binding.etConfirm.requestFocus()
+                return
+            }
         }
 
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "Email inválido", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        if (password.length < 6) {
-            Toast.makeText(this, "Senha deve ter no mínimo 6 caracteres", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        if (password != confirm) {
-            Toast.makeText(this, "As senhas não coincidem", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        return true
+        // Cadastro bem-sucedido
+        saveUser(name, email)
+        Toast.makeText(this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
+        finish()
     }
 
     private fun saveUser(name: String, email: String) {
