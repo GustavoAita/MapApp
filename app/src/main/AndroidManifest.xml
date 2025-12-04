@@ -4,6 +4,9 @@
 
     <!-- Permissões -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -13,6 +16,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MapApp"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyB2BDUDP_b6uoT-FCWhugAURmbs5kFg8gs" />
 
         <!-- Splash Activity - Tela Inicial -->
         <activity
@@ -48,6 +55,12 @@
         <activity
             android:name=".ui.report.ReportProblemActivity"
             android:exported="false" />
+
+        <!-- Problem Detail Activity -->
+        <activity
+            android:name=".ui.detail.ProblemDetailActivity"
+            android:exported="false" />
+
 
     </application>
 
