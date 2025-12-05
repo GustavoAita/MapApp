@@ -28,6 +28,7 @@ import com.mapapp.app.databinding.FragmentMapBinding
 import com.mapapp.app.ui.detail.ProblemDetailActivity
 import kotlinx.coroutines.launch
 import com.mapapp.app.utils.LocationHelper
+import com.mapapp.app.data.firebase.FirestoreManager
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
@@ -39,6 +40,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private var problems: List<Problem> = emptyList()
     private var selectedProblem: Problem? = null
     private var currentCategory: String? = null
+    private lateinit var firestoreManager: FirestoreManager
 
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -76,11 +78,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val database = AppDatabase.getDatabase(requireContext())
         repository = ProblemRepository(database.problemDao())
 
+        // Inicializar Firestore
+        firestoreManager = FirestoreManager()
+
         // Inicializar mapa
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
         mapFragment?.getMapAsync(this)
 
         setupListeners()
+        observeFirestoreProblems()
     }
 
     private fun setupListeners() {
@@ -283,6 +289,17 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             repository.allProblems.collect { problemList ->
                 problems = problemList
                 addMarkersToMap()
+            }
+        }
+    }
+
+    private fun observeFirestoreProblems() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            firestoreManager.getAllProblemsFlow().collect { firestoreProblems ->
+                // Sincronizar com Room
+                firestoreProblems.forEach { problem ->
+                    repository.insertProblem(problem)
+                }
             }
         }
     }

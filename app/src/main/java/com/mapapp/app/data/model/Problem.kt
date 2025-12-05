@@ -14,6 +14,16 @@ data class Problem(
     val votesCount: Int = 0,
     val createdAt: Long = System.currentTimeMillis()
 ) {
+    // Construtor vazio necessario para Firestore
+    constructor() : this(
+        id = "",
+        title = "",
+        description = "",
+        category = "",
+        userName = "",
+        userEmail = ""
+    )
+
     fun getTimeAgo(): String {
         val diff = System.currentTimeMillis() - createdAt
         val seconds = diff / 1000
@@ -22,9 +32,9 @@ data class Problem(
         val days = hours / 24
 
         return when {
-            days > 0 -> "Há ${days}d"
-            hours > 0 -> "Há ${hours}h"
-            minutes > 0 -> "Há ${minutes}min"
+            days > 0 -> "Ha ${days}d"
+            hours > 0 -> "Ha ${hours}h"
+            minutes > 0 -> "Ha ${minutes}min"
             else -> "Agora"
         }
     }

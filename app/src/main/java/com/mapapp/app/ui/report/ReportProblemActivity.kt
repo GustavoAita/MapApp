@@ -16,6 +16,8 @@ import com.mapapp.app.databinding.ActivityReportProblemBinding
 import kotlinx.coroutines.launch
 import java.util.UUID
 import com.mapapp.app.utils.LocationHelper
+import com.mapapp.app.data.firebase.FirestoreManager
+import com.mapapp.app.MapAppApplication
 class ReportProblemActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityReportProblemBinding
@@ -24,6 +26,7 @@ class ReportProblemActivity : AppCompatActivity() {
     private lateinit var locationHelper: LocationHelper
     private var currentLatitude: Double = 0.0
     private var currentLongitude: Double = 0.0
+    private lateinit var firestoreManager: FirestoreManager
     private val categories = arrayOf(
         "Selecione uma categoria",
         "Buraco na via",
@@ -51,6 +54,9 @@ class ReportProblemActivity : AppCompatActivity() {
         // Inicializar Repository
         val database = AppDatabase.getDatabase(this)
         repository = ProblemRepository(database.problemDao())
+
+        // Inicializar Firestore
+        firestoreManager = FirestoreManager()
 
         // Inicializar LocationHelper
         locationHelper = LocationHelper(this)
@@ -154,24 +160,38 @@ class ReportProblemActivity : AppCompatActivity() {
             createdAt = System.currentTimeMillis()
         )
 
-        // Salvar no banco de dados
         lifecycleScope.launch {
             try {
+                // Salvar no Room (local)
                 repository.insertProblem(problem)
 
+                // Obter SyncManager
+                val syncManager = (application as MapAppApplication).syncManager
+
+                // Tentar sincronizar com Firestore
+                val syncResult = syncManager.syncProblemToFirestore(problem)
+
                 runOnUiThread {
-                    Toast.makeText(
-                        this@ReportProblemActivity,
-                        "✅ Problema reportado com sucesso!",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    if (syncResult.isSuccess) {
+                        Toast.makeText(
+                            this@ReportProblemActivity,
+                            "Problema reportado e sincronizado!",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            this@ReportProblemActivity,
+                            "Problema salvo. Sera sincronizado quando houver conexao.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                     finish()
                 }
             } catch (e: Exception) {
                 runOnUiThread {
                     Toast.makeText(
                         this@ReportProblemActivity,
-                        "❌ Erro ao salvar: ${e.message}",
+                        "Erro ao salvar: ${e.message}",
                         Toast.LENGTH_SHORT
                     ).show()
                     binding.btnReport.isEnabled = true

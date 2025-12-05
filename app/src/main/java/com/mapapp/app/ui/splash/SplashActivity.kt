@@ -9,15 +9,18 @@ import com.mapapp.app.databinding.ActivitySplashBinding
 import com.mapapp.app.ui.auth.LoginActivity
 import com.mapapp.app.ui.main.MainActivity
 import com.mapapp.app.ui.onboarding.OnboardingActivity
+import com.mapapp.app.data.firebase.FirebaseAuthManager
 
 class SplashActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySplashBinding
+    private lateinit var authManager: FirebaseAuthManager
     private val SPLASH_DELAY = 3000L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater)
+        authManager = FirebaseAuthManager()
         setContentView(binding.root)
 
         Handler(Looper.getMainLooper()).postDelayed({
@@ -28,17 +31,21 @@ class SplashActivity : AppCompatActivity() {
     private fun checkUserState() {
         try {
             val prefs = getSharedPreferences("MapAppPrefs", MODE_PRIVATE)
-
             val isFirstTime = prefs.getBoolean("isFirstTime", true)
-            val isLoggedIn = prefs.getBoolean("isLoggedIn", false)
+
+            // Verificar se usuario esta logado no Firebase
+            val isLoggedInFirebase = authManager.isUserLoggedIn()
 
             when {
                 isFirstTime -> goToOnboarding()
-                isLoggedIn -> goToMain()
+                isLoggedInFirebase -> {
+                    // Atualizar SharedPreferences
+                    prefs.edit().putBoolean("isLoggedIn", true).apply()
+                    goToMain()
+                }
                 else -> goToLogin()
             }
         } catch (e: Exception) {
-            // Em caso de erro, vai para onboarding
             goToOnboarding()
         }
     }

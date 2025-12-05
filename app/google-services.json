@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "506808364092",
+    "project_id": "mapapp-9b39f",
+    "storage_bucket": "mapapp-9b39f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:506808364092:android:ca17b3e9aee1cfabe26739",
+        "android_client_info": {
+          "package_name": "com.mapapp.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAH-RF_VnwYqCeaKbeZ1vlKcIqDY8OZsSc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

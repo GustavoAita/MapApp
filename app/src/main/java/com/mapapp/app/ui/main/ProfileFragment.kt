@@ -10,11 +10,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.mapapp.app.databinding.FragmentProfileBinding
 import com.mapapp.app.ui.auth.LoginActivity
+import com.mapapp.app.data.firebase.FirebaseAuthManager
 
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
+    private lateinit var authManager: FirebaseAuthManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,18 +29,18 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        authManager = FirebaseAuthManager()
 
         loadUserData()
         setupLogoutButton()
     }
 
     private fun loadUserData() {
-        val prefs = requireActivity().getSharedPreferences("MapAppPrefs", 0)
-        val name = prefs.getString("userName", "Usuário")
-        val email = prefs.getString("userEmail", "email@exemplo.com")
+        val name = authManager.getUserName() ?: "Usuario"
+        val email = authManager.getUserEmail() ?: "email@exemplo.com"
 
-        binding.tvName.text = name ?: "Usuário"
-        binding.tvEmail.text = email ?: "email@exemplo.com"
+        binding.tvName.text = name
+        binding.tvEmail.text = email
     }
 
     private fun setupLogoutButton() {
@@ -59,13 +61,12 @@ class ProfileFragment : Fragment() {
     }
 
     private fun performLogout() {
-        // Limpar dados de login
+        // Fazer logout do Firebase
+        authManager.logoutUser()
+
+        // Limpar SharedPreferences
         val prefs = requireActivity().getSharedPreferences("MapAppPrefs", 0)
-        prefs.edit().apply {
-            putBoolean("isLoggedIn", false)
-            remove("userEmail")
-            apply()
-        }
+        prefs.edit().clear().apply()
 
         Toast.makeText(requireContext(), "Logout realizado", Toast.LENGTH_SHORT).show()
 

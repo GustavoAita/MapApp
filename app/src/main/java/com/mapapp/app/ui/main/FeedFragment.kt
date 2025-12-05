@@ -16,6 +16,8 @@ import com.mapapp.app.data.model.Problem
 import com.mapapp.app.databinding.FragmentFeedBinding
 import com.mapapp.app.ui.detail.ProblemDetailActivity
 import kotlinx.coroutines.launch
+import com.mapapp.app.data.firebase.FirestoreManager
+import com.mapapp.app.MapAppApplication
 
 class FeedFragment : Fragment() {
 
@@ -30,6 +32,7 @@ class FeedFragment : Fragment() {
 
     private var currentCategory: String? = null
     private var currentSearchQuery: String = ""
+    private lateinit var firestoreManager: FirestoreManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,14 +49,21 @@ class FeedFragment : Fragment() {
         val database = AppDatabase.getDatabase(requireContext())
         repository = ProblemRepository(database.problemDao())
 
+        // Inicializar Firestore
+        firestoreManager = FirestoreManager()
+
         setupRecyclerView()
         setupSearchBar()
         setupFilters()
         observeProblems()
+        observeFirestoreProblems()
+        updateOnlineStatus()
     }
 
     override fun onResume() {
         super.onResume()
+        //checkAndLoadProblems()
+        updateOnlineStatus()
     }
 
     private fun setupRecyclerView() {
@@ -139,6 +149,17 @@ class FeedFragment : Fragment() {
         }
     }
 
+    private fun observeFirestoreProblems() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            firestoreManager.getAllProblemsFlow().collect { firestoreProblems ->
+                // Sincronizar com Room local
+                firestoreProblems.forEach { problem ->
+                    repository.insertProblem(problem)
+                }
+            }
+        }
+    }
+
     private fun applyFilters() {
         var filtered = allProblems
 
@@ -216,6 +237,19 @@ class FeedFragment : Fragment() {
         val intent = Intent(requireContext(), ProblemDetailActivity::class.java)
         intent.putExtra(ProblemDetailActivity.EXTRA_PROBLEM_ID, problem.id)
         startActivity(intent)
+    }
+
+    private fun updateOnlineStatus() {
+        val syncManager = (requireActivity().application as MapAppApplication).syncManager
+        val isOnline = syncManager.isOnline()
+
+        binding.tvOnlineStatus.text = if (isOnline) "Online" else "Offline"
+        binding.tvOnlineStatus.setBackgroundColor(
+            if (isOnline)
+                android.graphics.Color.parseColor("#4CAF50")
+            else
+                android.graphics.Color.parseColor("#FF9800")
+        )
     }
 
     override fun onDestroyView() {
